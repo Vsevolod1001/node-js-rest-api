@@ -1,5 +1,6 @@
 const fs = require("fs/promises");
 const path = require("path");
+const { v4 } = require("uuid");
 const filePath = path.join(__dirname, "contacts.json");
 
 const listContacts = async () => {
@@ -31,9 +32,32 @@ const removeContact = async (contactId) => {
   return null;
 };
 
-const addContact = async (body) => {};
+const addContact = async (name, email, phone) => {
+  const allContacts = await listContacts();
+  const newContact = {
+    id: v4(),
+    name,
+    email,
+    phone,
+  };
+  allContacts.push(newContact);
+  await fs.writeFile(filePath, JSON.stringify(allContacts));
+  return newContact;
+};
 
-const updateContact = async (contactId, body) => {};
+const updateContact = async (id, name, email, phone) => {
+  const contacts = await listContacts();
+  const ind = contacts.findIndex((item) => item.id === id);
+  if (ind !== -1) {
+    contacts[ind].name = name;
+    contacts[ind].email = email;
+    contacts[ind].phone = phone;
+    await fs.writeFile(filePath, JSON.stringify(contacts));
+    return contacts[ind];
+  } else {
+    return null;
+  }
+};
 
 module.exports = {
   listContacts,
